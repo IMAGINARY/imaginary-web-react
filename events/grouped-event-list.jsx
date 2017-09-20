@@ -99,7 +99,7 @@ export default class GroupedEventList extends React.Component {
       sortControls = (
         <ul className="event-list-sort">
           <li className={this.state.sortField === 'name' ? 'active' : ''}>
-            <a href="" onClick={this.sortByName}>{window.Drupal.t(`Sort by ${this.nameFieldName()}`)}</a>
+            <a href="" onClick={this.sortByName}>{window.Drupal.t('Sort alphabetically')}</a>
           </li>
           <li className={this.state.sortField === 'count' ? 'active' : ''}>
             <a href="" onClick={this.sortByCount}>{window.Drupal.t('Sort by number of events')}</a>
