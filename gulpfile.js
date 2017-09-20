@@ -14,37 +14,65 @@ const sourceBuffer = require('vinyl-buffer');
 const sourceMaps = require('gulp-sourcemaps');
 const minify = require('gulp-minify');
 const gutil = require('gulp-util');
+const envify = require('loose-envify/custom');
+const collapse = require('bundle-collapser/plugin');
 
 const dependencies = [
   'react',
   'react-dom',
 ];
 
-function bundleApp() {
+function bundleApp(production) {
   // Browserify will bundle all our js files together in to one and will let
   // us use modules in the front end.
+
+  process.env.NODE_ENV = production ? 'production' : 'development';
+
   const appBundler = browserify({
     entries: source,
-    debug: true,
+    debug: !production,
   });
 
   dependencies.forEach((dep) => {
     appBundler.external(dep);
   });
 
+  if (production) {
+    appBundler.plugin(collapse);
+  }
+
   appBundler
     .transform('babelify', { presets: ['es2015', 'react'], extensions: ['.js', '.es6', '.jsx'] })
+    .transform(envify({
+      NODE_ENV: production ? 'production' : 'development',
+    }))
     .bundle()
     .on('error', gutil.log)
     .pipe(sourceStream(target))
+    .pipe(sourceBuffer())
+    .pipe(sourceMaps.init())
+    .pipe(minify({
+      ext: {
+        src: '.js',
+        min: '.min.js',
+      },
+    }))
+    .pipe(sourceMaps.write('.'))
     .pipe(gulp.dest(targetDir));
 }
 
 gulp.task('vendors', () => {
+
+  process.env.NODE_ENV = 'production';
+
   browserify({
     require: dependencies,
-    debug: true,
+    debug: false,
   })
+    .plugin(collapse)
+    .transform(envify({
+      NODE_ENV: 'production',
+    }))
     .bundle()
     .on('error', gutil.log)
     .pipe(sourceStream(targetVendors))
@@ -61,11 +89,11 @@ gulp.task('vendors', () => {
 });
 
 gulp.task('scripts:dev', () => {
-  bundleApp();
+  bundleApp(false);
 });
 
 gulp.task('scripts:prod', () => {
-  bundleApp();
+  bundleApp(true);
 });
 
 gulp.task('scripts:watch', () => {
