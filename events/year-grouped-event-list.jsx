@@ -17,7 +17,7 @@ export default class YearGroupedEventList extends GroupedEventList {
       const date = new Date(event.dateFrom);
       const year = date.getFullYear();
 
-      if (event.permanent === '1') {
+      if (event.permanent) {
         groups[this.ongoingName].push(event);
       } else {
         if (groups[year] === undefined) {
