@@ -29,7 +29,7 @@ export default class EventTeaser extends React.Component {
 
     if (this.props.showThumbnail) {
       if (event.thumbnail !== undefined) {
-        thumbnail = <div className="event-thumbnail">{event.thumbnail}</div>;
+        thumbnail = <img className="event-thumbnail" src={event.thumbnail} alt={event.title} />;
       } else {
         thumbnail = <div className="event-thumbnail event-thumbnail-default" />;
       }
